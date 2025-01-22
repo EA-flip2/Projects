@@ -1,3 +1,4 @@
+from pathlib import Path
 import psycopg2
 
 def connect_db():
@@ -27,23 +28,47 @@ def insert_record(conn, file_name ,file_exe , file_size,dtm,rfile_path):
 
     conn.commit()
 
+
+
 def read_file_path(conn):
-    cur = conn.cursor() 
+    cur = conn.cursor()
     paths = []
     query = """
-            select file_size from render_data.file_data;
-"""
-    file_paths =cur.execute(query)
+        SELECT path FROM render_data.file_data;
+    """
+    
+    # Execute the query
+    cur.execute(query)
 
     # Fetch all results
     file_paths = cur.fetchall()
 
-   # Append file paths to the list
+    # Append file paths to the list, converting to relative paths
     for row in file_paths:
-        paths.append(row[0])
-
-    print(paths)
+        render_path = str(Path("/media") / Path(row[0]).name)
+        paths.append(render_path.replace("\\", "/"))
     return paths
+
+
+# def read_file_path(conn):
+#     cur = conn.cursor() 
+#     paths = []
+#     query = """
+#             select path from render_data.file_data;
+# """
+#     file_paths =cur.execute(query)
+
+#     # Fetch all results
+#     file_paths = cur.fetchall()
+
+#    # Append file paths to the list
+#     # for row in file_paths:
+#     #     paths.append(row[0])
+#     for row in file_paths:
+#         paths.append([row[0]])
+
+#     #print(paths)
+#     return paths
 
 
 
@@ -51,4 +76,4 @@ conn_db = connect_db()
 
 if conn_db:
     a = read_file_path(conn_db)
-    print(type(a))
+    print(a)

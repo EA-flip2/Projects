@@ -3,41 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Gallery</title>
+    <title>Media Files</title>
     <style>
-        .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        body {
+            font-family: Arial, sans-serif;
         }
-        .gallery-item {
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 20px 0;
+        }
+        img, video {
             max-width: 300px;
-            text-align: center;
-        }
-        video, img {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
+            max-height: 300px;
+            display: block;
         }
     </style>
 </head>
 <body>
-    <h1>Media Gallery</h1>
-    <div class="gallery">
-        {% for file_path in file_paths %}
-            <div class="gallery-item">
-                {% if file_path.endswith('.png') or file_path.endswith('.jpg') %}
-                    <img src="{{ file_path }}" alt="Image">
-                {% elif file_path.endswith('.mkv') or file_path.endswith('.avi') %}
+    <h1>Media Files</h1>
+    <ul>
+        {% for file in files %}
+            <li>
+                {% if file.endswith(('.png', '.jpg', '.jpeg')) %}
+                    <!-- Display Image -->
+                    <img src="{{ file }}" alt="Image">
+                {% elif file.endswith(('.mkv', '.avi', '.mp4')) %}
+                    <!-- Display Video -->
                     <video controls>
-                        <source src="{{ file_path }}" type="video/{{ file_path.split('.')[-1] }}">
+                        <source src="{{ file }}" type="video/{{ file.split('.')[-1] }}">
                         Your browser does not support the video tag.
                     </video>
                 {% else %}
-                    <p>Unsupported file format</p>
+                    <!-- Unsupported File -->
+                    <p>Unsupported file format: {{ file }}</p>
                 {% endif %}
-            </div>
+            </li>
         {% endfor %}
-    </div>
+    </ul>
 </body>
 </html>
