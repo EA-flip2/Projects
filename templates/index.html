@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Gallery</title>
+    <style>
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .gallery-item {
+            max-width: 300px;
+            text-align: center;
+        }
+        video, img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1>Media Gallery</h1>
+    <div class="gallery">
+        {% for file_path in file_paths %}
+            <div class="gallery-item">
+                {% if file_path.endswith('.png') or file_path.endswith('.jpg') %}
+                    <img src="{{ file_path }}" alt="Image">
+                {% elif file_path.endswith('.mkv') or file_path.endswith('.avi') %}
+                    <video controls>
+                        <source src="{{ file_path }}" type="video/{{ file_path.split('.')[-1] }}">
+                        Your browser does not support the video tag.
+                    </video>
+                {% else %}
+                    <p>Unsupported file format</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

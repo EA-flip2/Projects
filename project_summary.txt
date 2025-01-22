@@ -1,0 +1,10 @@
+Summary of the Workflow
+
+Frontend: A user visits the website, and the browser sends a GET request to /.
+
+Backend: FastAPI:
+Fetches file data from PostgreSQL
+
+Passes it to the HTML template.
+Sends the rendered HTML back to the browser.
+Browser: Displays the file data in a table on the webpage.

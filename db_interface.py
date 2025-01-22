@@ -27,3 +27,28 @@ def insert_record(conn, file_name ,file_exe , file_size,dtm,rfile_path):
 
     conn.commit()
 
+def read_file_path(conn):
+    cur = conn.cursor() 
+    paths = []
+    query = """
+            select file_size from render_data.file_data;
+"""
+    file_paths =cur.execute(query)
+
+    # Fetch all results
+    file_paths = cur.fetchall()
+
+   # Append file paths to the list
+    for row in file_paths:
+        paths.append(row[0])
+
+    print(paths)
+    return paths
+
+
+
+conn_db = connect_db()
+
+if conn_db:
+    a = read_file_path(conn_db)
+    print(type(a))

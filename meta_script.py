@@ -72,5 +72,4 @@ if conn_db:
                       local_data[k][2],local_data[k][3],local_data[k][4]) # updating local data base
 
 
-
 #print(local_data)
