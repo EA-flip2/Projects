@@ -72,8 +72,8 @@ def read_file_path(conn):
 
 
 
-conn_db = connect_db()
+# conn_db = connect_db()
 
-if conn_db:
-    a = read_file_path(conn_db)
-    print(a)
+# if conn_db:
+#     a = read_file_path(conn_db)
+#     print(a)

@@ -33,9 +33,10 @@
                 {% elif file.endswith(('.mkv', '.avi', '.mp4')) %}
                     <!-- Display Video -->
                     <video controls>
-                        <source src="{{ file }}" type="video/{{ file.split('.')[-1] }}">
+                        <source src="/media/{{ file }}" type="video/mp4">
                         Your browser does not support the video tag.
-                    </video>
+                    </video>                    
+                    
                 {% else %}
                     <!-- Unsupported File -->
                     <p>Unsupported file format: {{ file }}</p>
