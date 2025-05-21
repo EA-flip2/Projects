@@ -33,7 +33,10 @@ class _MediaPageState extends State<MediaPage> {
       ),
       body: Column(
         children: [
-          Text(data),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: Image(image: AssetImage("images/disc_plaA.png")),
+          ),
           Row(
             children: [
               IconButton(
@@ -73,7 +76,6 @@ class _MediaPageState extends State<MediaPage> {
               ),
             ],
           ),
-          Row(),
         ],
       ),
     );

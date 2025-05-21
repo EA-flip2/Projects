@@ -1,5 +1,7 @@
+import 'package:a_voice/methods/db_methods.dart';
 import 'package:a_voice/methods/playBack_methods.dart';
 import 'package:a_voice/methods/pop_up_list.dart';
+import 'package:a_voice/pages/img_pac.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:popover/popover.dart';
@@ -38,6 +40,7 @@ class _voice_tileState extends State<voice_tile> {
           children: [
             SlidableAction(
               onPressed: (context) {
+                deleteRecording(widget.recording_name);
                 // Add your delete functionality here
               },
               icon: Icons.delete,
@@ -67,9 +70,7 @@ class _voice_tileState extends State<voice_tile> {
             // move to player Page
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => ,
-              ),
+              MaterialPageRoute(builder: (context) => name()),
             );
           },
           child: Container(
