@@ -14,7 +14,7 @@ class name extends StatelessWidget {
         children: [
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
-            child: Image(image: AssetImage("images/disc_plaA.png")),
+            child: Image.asset('lib/assets/images/disc_playA.png'),
           ),
           Row(
             children: [

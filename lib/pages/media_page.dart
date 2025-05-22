@@ -29,13 +29,25 @@ class _MediaPageState extends State<MediaPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("EA Player"),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(widget.recording_name, style: const TextStyle(fontSize: 20)),
+              Text(widget.recording_date, style: const TextStyle(fontSize: 20)),
+            ],
+          ),
+        ),
         backgroundColor: Colors.blue,
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
-            child: Image(image: AssetImage("images/disc_plaA.png")),
+            child: Image.asset('lib/assets/images/disc_playB.png'),
           ),
           Row(
             children: [
