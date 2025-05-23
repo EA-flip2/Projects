@@ -1,3 +1,5 @@
+//import 'dart:nativewrappers/_internal/vm/lib/async_patch.dart';
+
 import 'package:just_audio/just_audio.dart';
 
 final player = AudioPlayer();
@@ -22,19 +24,20 @@ void pauseRecording() async {
   }
 }
 
-void resumeRecording() async {
+void resumeRecording(double position) async {
   // Implement the logic to resume the recording
   try {
+    await player.seek(Duration(seconds: position.toInt()));
     await player.play();
   } catch (e) {
     print("Error resuming recording: $e");
   }
 }
 
-void seekplayback(Duration position) async {
+void seekplayback(double position) async {
   // Implement the logic to seek to a specific position in the recording
   try {
-    await player.seek(position);
+    await player.seek(Duration(seconds: position.toInt()));
   } catch (e) {
     print("Error seeking playback: $e");
   }
@@ -49,11 +52,23 @@ void setspeed(double speed) async {
   }
 }
 
-void stopRecording() async {
+Future<void> stopRecording() async {
   // Implement the logic to stop the recording
   try {
     await player.stop();
+    await player.seek(Duration.zero); // Reset position to start
   } catch (e) {
     print("Error stopping recording: $e");
   }
+}
+
+void disposePlayer() {
+  player.dispose();
+}
+
+double getDurationFromFile(String filePath) {
+  player.setFilePath(filePath);
+  final duration = player.duration ?? Duration.zero;
+  disposePlayer();
+  return duration.inSeconds.toDouble();
 }

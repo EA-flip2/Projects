@@ -100,7 +100,12 @@ class record_details extends StatelessWidget {
               child: ListTile(
                 leading: Icon(Icons.edit),
                 title: Text("Rename"),
-                onTap: () {
+                onTap: () async {
+                  Navigator.pop(context);
+                  await Future.delayed(
+                    Duration(milliseconds: 100),
+                  ); // Optional: ensure menu is closed
+
                   renameRecord(context, record_name);
                   //Navigator.pop(context);
                 },
@@ -110,9 +115,13 @@ class record_details extends StatelessWidget {
               child: ListTile(
                 leading: Icon(Icons.delete),
                 title: Text("Delete"),
-                onTap: () {
+                onTap: () async {
+                  // Close the popup menu first, then show the dialog
+                  Navigator.pop(context);
+                  await Future.delayed(
+                    Duration(milliseconds: 100),
+                  ); // Optional: ensure menu is closed
                   confirmDelete(context, record_name);
-                  //Navigator.pop(context);
                 },
               ),
             ),

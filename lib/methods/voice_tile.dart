@@ -1,7 +1,7 @@
 import 'package:a_voice/methods/db_methods.dart';
 import 'package:a_voice/methods/playBack_methods.dart';
 import 'package:a_voice/methods/pop_up_list.dart';
-import 'package:a_voice/pages/img_pac.dart';
+
 import 'package:a_voice/pages/media_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -38,6 +38,10 @@ class _voice_tileState extends State<voice_tile> {
       child: GestureDetector(
         onDoubleTap: () {
           // move to the media player screen
+          stopRecording();
+          setState(() {
+            isPlaying = false;
+          });
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -94,28 +98,22 @@ class _voice_tileState extends State<voice_tile> {
               ), // index number
 
               SizedBox(
-                child:
-                    isPlaying
-                        ? IconButton(
-                          icon: Icon(Icons.stop),
-                          onPressed: () {
-                            // Pause the recording
-                            stopRecording();
-                            setState(() {
-                              isPlaying = false;
-                            });
-                          },
-                        )
-                        : IconButton(
-                          icon: Icon(Icons.play_arrow),
-                          onPressed: () {
-                            // Play the recording
-                            playRecording(widget.recording_path);
-                            setState(() {
-                              isPlaying = true;
-                            });
-                          },
-                        ),
+                child: IconButton(
+                  icon: isPlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+                  onPressed: () {
+                    if (isPlaying) {
+                      stopRecording();
+                      setState(() {
+                        isPlaying = false;
+                      });
+                    } else {
+                      playRecording(widget.recording_path);
+                      setState(() {
+                        isPlaying = true;
+                      });
+                    }
+                  },
+                ),
               ), // play button
 
               SizedBox(

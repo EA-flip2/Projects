@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:a_voice/methods/record_methods.dart';
 import 'package:hive/hive.dart';
+//import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,7 +24,7 @@ class _RecordingPageState extends State<RecordingPage> {
 
   Timer? _timer; // to track time
   int? startTimeStamp; // for default name
-  Duration duration = Duration.zero; // to track duration
+  Duration mduration = Duration.zero; // to track duration
 
   @override
   Widget build(BuildContext context) {
@@ -87,13 +88,14 @@ class _RecordingPageState extends State<RecordingPage> {
   }
 
   void stopRecording() async {
+    pauseRecording();
     _pauseTimer();
     setState(() {
       isRecording = false;
     });
 
     final formattedDuration =
-        "${duration.inMinutes.toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}";
+        "${mduration.inMinutes.toString().padLeft(2, '0')}:${(mduration.inSeconds % 60).toString().padLeft(2, '0')}";
     final TextEditingController nameFile = TextEditingController();
 
     showDialog(
@@ -127,6 +129,7 @@ class _RecordingPageState extends State<RecordingPage> {
                     await File(path).rename(newPath);
                     filePathToSave = newPath;
                   }
+
                   // Save the recording to Hive or any other storage
                   final box = Hive.box<Recording>('voice_data');
                   final recording = Recording(
@@ -159,7 +162,7 @@ class _RecordingPageState extends State<RecordingPage> {
     return GestureDetector(
       onTap: () {
         if (!isRecording) {
-          if (duration.inSeconds < 1) {
+          if (mduration.inSeconds < 1) {
             startRecording();
           }
           _startTimer();
@@ -183,7 +186,7 @@ class _RecordingPageState extends State<RecordingPage> {
           shape: BoxShape.circle,
         ),
         child:
-            duration.inSeconds < 1
+            mduration.inSeconds < 1
                 ? Icon(Icons.mic)
                 : Icon(isRecording ? Icons.pause : Icons.play_arrow),
       ),
@@ -204,6 +207,7 @@ class _RecordingPageState extends State<RecordingPage> {
   }
 
   Future<void> _delete() async {
+    pauseRecording();
     _pauseTimer();
 
     setState(() {
@@ -226,8 +230,7 @@ class _RecordingPageState extends State<RecordingPage> {
               TextButton(
                 onPressed: () async {
                   setState(() {
-                    isRecording = false;
-                    duration = Duration.zero;
+                    _stopTimer();
                   });
                   await audioRecorder.stop(); // Stop and discard the recording
                   Navigator.of(context).pop(); // Confirm delete
@@ -258,7 +261,7 @@ class _RecordingPageState extends State<RecordingPage> {
   Widget _buildTimer() {
     double fontSize = MediaQuery.of(context).size.width * 0.2;
     String formattedTime =
-        "${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}s";
+        "${mduration.inMinutes}:${(mduration.inSeconds % 60).toString().padLeft(2, '0')}s";
     return Text(
       formattedTime,
       style: TextStyle(
@@ -272,7 +275,7 @@ class _RecordingPageState extends State<RecordingPage> {
   _startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       setState(() {
-        duration += Duration(seconds: 1);
+        mduration += Duration(seconds: 1);
       });
     });
   }
@@ -284,7 +287,7 @@ class _RecordingPageState extends State<RecordingPage> {
   _stopTimer() {
     _timer?.cancel();
     setState(() {
-      duration = Duration.zero;
+      mduration = Duration.zero;
     });
   }
 }

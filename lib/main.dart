@@ -1,5 +1,6 @@
 import 'package:a_voice/evoice_home.dart';
 import 'package:a_voice/methods/record_methods.dart';
+import 'package:a_voice/pages/media_page.dart';
 //import 'package:a_voice/utils/record_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "A Voice",
-      home: EvoiceHome(),
+      home: EvoiceHome(), //,MediaPage()
     );
   }
 }
