@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:sms_project_1/data/draft_group_data.dart';
 import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/widget/contact_tile.dart';
@@ -54,8 +55,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   horizontal: 8,
                 ),
                 child: Text(getGroup().description),
-              ),
-
+              ), //Group description
               // Fixed height contact list
               SizedBox(
                 height:
@@ -75,8 +75,7 @@ class _GroupScreenState extends State<GroupScreen> {
                     );
                   },
                 ),
-              ),
-
+              ), //Display Contacts
               //  Always immediately after contact list
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -85,28 +84,55 @@ class _GroupScreenState extends State<GroupScreen> {
                 ),
                 child: Row(
                   children: [
-                    Text("Active Batch: ALL"),
+                    Text("Active Batch: ALL"), // change to dropdown
                     Spacer(),
                     IconButton(
                       onPressed: () {
+                        // create a draft
+                        if (drafts.any(
+                          (draft) => draft.groupID == getGroup().id,
+                        )) {
+                          (drafts
+                                      .where(
+                                        (draft) =>
+                                            draft.groupID == getGroup().id,
+                                      )
+                                      .length >
+                                  3)
+                              ? drafts.add(
+                                DraftGroupData(groupID: getGroup().id),
+                              )
+                              : print('Limit Reached');
+                          //print("Draft already exist");
+                        } else {
+                          drafts.add(
+                            DraftGroupData(groupID: getGroup().id),
+                          ); //would be the first draft with id = 0
+                          print("new draft_added");
+                        }
                         setState(() {
                           batchCtrl = 'edit';
                         });
                       },
                       icon: Icon(Icons.edit),
                     ), //exclude new some people
+
                     SizedBox(width: 10),
+
                     IconButton(onPressed: () {}, icon: Icon(Icons.update)),
                     SizedBox(width: 10),
                     (batchCtrl == 'edit')
                         ? TextButton(
                           //update ui here
                           onPressed: () {
-                            List newList =
-                                DraftGroupData(
-                                  groupID: getGroup().id,
-                                ).newContacts;
-                            print(newList);
+                            var thisDraft = drafts.firstWhere(
+                              (draft) => draft.groupID == getGroup().id,
+                            );
+                            thisDraft.getnewContacts();
+
+                            setState(() {
+                              batchCtrl = 'All';
+                            });
                           },
                           child: Row(
                             children: [
@@ -116,9 +142,39 @@ class _GroupScreenState extends State<GroupScreen> {
                           ),
                         )
                         : SizedBox(width: 0, height: 0),
+                    SizedBox(width: 10),
+                    (batchCtrl == 'edit')
+                        ? TextButton(
+                          onPressed: () {
+                            setState(() {
+                              batchCtrl = 'All';
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.cancel_outlined),
+                              SizedBox(width: 5),
+                              Text("Cancel"),
+                            ],
+                          ),
+                        )
+                        : SizedBox(width: 0, height: 0),
+
                     // exclude and add people
                   ],
                 ),
+              ),
+
+              TextButton(
+                onPressed: () {
+                  //drafts[0].indices.add(3);
+                  for (DraftGroupData thisdraft in drafts) {
+                    (thisdraft.groupID == getGroup().id)
+                        ? print(thisdraft.draftID)
+                        : null;
+                  }
+                },
+                child: Text("Draft"),
               ),
             ],
           ),

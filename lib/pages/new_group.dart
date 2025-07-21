@@ -114,7 +114,7 @@ class _CreateGroupState extends State<CreateGroup> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      var numbr = contactList.length;
+                      // var numbr = contactList.length;
                       // print("Group has $numbr contacts");
                       widget.addGroup(
                         Group.withContacts(

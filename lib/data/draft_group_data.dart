@@ -3,17 +3,18 @@ import 'package:sms_project_1/objects/contact.dart';
 import 'package:sms_project_1/objects/group.dart';
 
 class DraftGroupData {
-  DraftGroupData({required this.groupID});
+  DraftGroupData({required this.groupID}) : draftID = getGroupLimit(groupID);
 
   final String groupID;
+  final int draftID;
 
-  List<int> indices = [];
+  List<int> indices = []; //indexes to exclude
 
-  //description;
+  String description = ''; //description;
 
   List<Contact> newContacts = [];
-}
-  /*void getnewContacts() {
+
+  void getnewContacts() {
     // fetch specific group by id
     final Group targetGroup = groups.firstWhere((group) => group.id == groupID);
 
@@ -22,4 +23,11 @@ class DraftGroupData {
         newContacts.add(targetGroup.contacts[i]);
       }
     }
-  }*/
+  }
+}
+
+List<DraftGroupData> drafts = [];
+
+int getGroupLimit(String id) {
+  return drafts.where((draft) => draft.groupID == id).length;
+}
