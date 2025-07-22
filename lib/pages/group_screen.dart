@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:sms_project_1/data/draft_group_data.dart';
+import 'package:sms_project_1/objects/contact.dart';
 import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/widget/contact_tile.dart';
+import 'package:sms_project_1/widget/draft_tab.dart';
 
 class GroupScreen extends StatefulWidget {
   GroupScreen({super.key, required this.group});
@@ -14,6 +15,8 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
+  String batchCtrl = 'All';
+
   double getHeight() {
     return MediaQuery.of(context).size.height;
   }
@@ -22,7 +25,23 @@ class _GroupScreenState extends State<GroupScreen> {
     return widget.group;
   }
 
-  String batchCtrl = 'All';
+  int currentDraft = 1;
+
+  int getCurrentDraft() {
+    return currentDraft;
+  }
+
+  void updateCurrentDraft(int currentdraft) {
+    setState(() {
+      currentDraft = currentdraft;
+    });
+  }
+
+  void switchbatch(String broadCastState) {
+    setState(() {
+      batchCtrl = broadCastState;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +91,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       ID: getGroup().id,
                       index: index,
                       batch: batchCtrl,
+                      draftID: getCurrentDraft,
                     );
                   },
                 ),
@@ -82,86 +102,11 @@ class _GroupScreenState extends State<GroupScreen> {
                   vertical: 10,
                   horizontal: 8,
                 ),
-                child: Row(
-                  children: [
-                    Text("Active Batch: ALL"), // change to dropdown
-                    Spacer(),
-                    IconButton(
-                      onPressed: () {
-                        // create a draft
-                        if (drafts.any(
-                          (draft) => draft.groupID == getGroup().id,
-                        )) {
-                          (drafts
-                                      .where(
-                                        (draft) =>
-                                            draft.groupID == getGroup().id,
-                                      )
-                                      .length >
-                                  3)
-                              ? drafts.add(
-                                DraftGroupData(groupID: getGroup().id),
-                              )
-                              : print('Limit Reached');
-                          //print("Draft already exist");
-                        } else {
-                          drafts.add(
-                            DraftGroupData(groupID: getGroup().id),
-                          ); //would be the first draft with id = 0
-                          print("new draft_added");
-                        }
-                        setState(() {
-                          batchCtrl = 'edit';
-                        });
-                      },
-                      icon: Icon(Icons.edit),
-                    ), //exclude new some people
-
-                    SizedBox(width: 10),
-
-                    IconButton(onPressed: () {}, icon: Icon(Icons.update)),
-                    SizedBox(width: 10),
-                    (batchCtrl == 'edit')
-                        ? TextButton(
-                          //update ui here
-                          onPressed: () {
-                            var thisDraft = drafts.firstWhere(
-                              (draft) => draft.groupID == getGroup().id,
-                            );
-                            thisDraft.getnewContacts();
-
-                            setState(() {
-                              batchCtrl = 'All';
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.save_alt),
-                              Text("Save Draft"),
-                            ],
-                          ),
-                        )
-                        : SizedBox(width: 0, height: 0),
-                    SizedBox(width: 10),
-                    (batchCtrl == 'edit')
-                        ? TextButton(
-                          onPressed: () {
-                            setState(() {
-                              batchCtrl = 'All';
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.cancel_outlined),
-                              SizedBox(width: 5),
-                              Text("Cancel"),
-                            ],
-                          ),
-                        )
-                        : SizedBox(width: 0, height: 0),
-
-                    // exclude and add people
-                  ],
+                child: DraftTab(
+                  getGroup: getGroup,
+                  switchBroadcast: switchbatch,
+                  batchCtrl: batchCtrl,
+                  currentDraft: updateCurrentDraft,
                 ),
               ),
 
@@ -169,9 +114,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 onPressed: () {
                   //drafts[0].indices.add(3);
                   for (DraftGroupData thisdraft in drafts) {
-                    (thisdraft.groupID == getGroup().id)
-                        ? print(thisdraft.draftID)
-                        : null;
+                    print(thisdraft.draftID);
                   }
                 },
                 child: Text("Draft"),
