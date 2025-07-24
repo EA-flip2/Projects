@@ -4,6 +4,11 @@ group object
 -contacts
 -active contacts
 
+draft
+-draftID
+-groupID
+-newContacts
+
 messenger object
 -message
 -active contacts
@@ -34,3 +39,28 @@ tools
 
 draft
 {group id, contactList } // saved locally
+
+
+
+hive structure
+-message object  //holds messages until cleared or deleted
+    -message = actual text to send
+    -groupID
+    -draftID
+
+-group
+    -name
+    -description
+    -contacts
+    -drafts
+
+draft
+    -name
+    -description
+    -contacts
+
+setting
+
+
+draf key = 'draftID=groupID'
+group key = 'groupID'

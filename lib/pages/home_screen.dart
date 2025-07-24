@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (ctx) => GroupScreen(group: group)));
-  }
+  } //moves you to the selected group's page
 
   @override
   Widget build(BuildContext context) {

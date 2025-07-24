@@ -3,6 +3,7 @@ import 'package:sms_project_1/data/groups_data.dart';
 import 'package:sms_project_1/pages/home_screen.dart';
 import 'package:sms_project_1/pages/new_group.dart';
 import 'package:sms_project_1/objects/group.dart';
+import 'package:sms_project_1/tools/store_functions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,9 +13,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final store = StoreFunctions();
+
   String activeScreen = 'home';
 
   void addNewGroup(Group newGroup) {
+    //  await store.addGroup(newGroup);
     setState(() {
       groups.add(newGroup);
     });
