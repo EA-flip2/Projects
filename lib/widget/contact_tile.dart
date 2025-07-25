@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sms_project_1/data/draft_group_data.dart';
+import 'package:sms_project_1/objects/draft_group_data.dart';
+import 'package:sms_project_1/data/draft_data.dart';
 
 class ContactTile extends StatefulWidget {
   const ContactTile({

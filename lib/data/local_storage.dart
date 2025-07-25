@@ -1,7 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:sms_project_1/data/draft_group_data.dart';
-import 'package:sms_project_1/objects/contact.dart';
-import 'package:sms_project_1/objects/group.dart';
 
 part 'local_storage.g.dart';
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sms_project_1/data/draft_data.dart';
 import 'package:sms_project_1/data/groups_data.dart';
 import 'package:sms_project_1/pages/home_screen.dart';
 import 'package:sms_project_1/pages/new_group.dart';
 import 'package:sms_project_1/objects/group.dart';
+import 'package:sms_project_1/data/local_storage.dart';
 import 'package:sms_project_1/tools/store_functions.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,13 +15,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final store = StoreFunctions();
-
   String activeScreen = 'home';
+  // load data
+  Future<void> loadData() async {
+    await loadDrafts();
+    await loadGroups();
+    return;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadDrafts();
+  }
 
   void addNewGroup(Group newGroup) {
     //  await store.addGroup(newGroup);
     setState(() {
+      var storeThisgroup = GroupStore(
+        name: newGroup.name,
+        description: newGroup.description,
+        groupID: newGroup.id,
+      );
+      StoreFunctions.addGroup(storeThisgroup); // save group's data to hive
       groups.add(newGroup);
     });
   }

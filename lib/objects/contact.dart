@@ -14,7 +14,8 @@ void addContact(
   final contactNumber = TextEditingController();
 
   showModalBottomSheet(
-    //useSafeArea: true, // make sure it's in safe area
+    isScrollControlled: true, // prevents keyboard overlay
+    useSafeArea: true, // make sure it's in safe area
     context: context,
 
     // isScrollControlled: true, // important for larger content
@@ -29,7 +30,7 @@ void addContact(
             topRight: Radius.circular(20.0),
           ),
         ),
-        height: sheight * 0.35,
+        height: sheight,
         child: Column(
           mainAxisSize: MainAxisSize.min, // fit to content
           children: [

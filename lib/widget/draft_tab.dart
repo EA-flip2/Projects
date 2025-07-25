@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:sms_project_1/data/draft_group_data.dart';
+import 'package:sms_project_1/data/draft_data.dart';
+import 'package:sms_project_1/objects/draft_group_data.dart';
+import 'package:sms_project_1/data/local_storage.dart';
 import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/pages/draft_screen.dart';
+import 'package:sms_project_1/tools/store_functions.dart';
 
 class DraftTab extends StatefulWidget {
   DraftTab({
     super.key,
     required this.getGroup,
     required this.switchBroadcast,
-    required this.batchCtrl,
-    required this.currentDraft,
+    required this.batchCtrl, // used to control how the contact tile behaves(showing checkbox or not)
+    required this.currentDraft, //just keeps the state
   });
   final Group Function() getGroup;
   final void Function(int currentdraft) currentDraft;
@@ -50,14 +53,14 @@ class _DraftTabState extends State<DraftTab> {
 
                   int selectedDraftIndex = broadCastState.indexOf(
                     selectedDraft,
-                  );
+                  ); // since the draftId's are based on index
                   widget.currentDraft(selectedDraftIndex);
                   if (selectedDraftIndex != 0) {
                     moveToDraft(
                       selectedDraftIndex,
                       context,
                       widget.getGroup().id,
-                    );
+                    ); //move to the selected draft screen
                   }
                 }
               },
@@ -124,6 +127,16 @@ class _DraftTabState extends State<DraftTab> {
                   broadCastState.last,
                 ); // assigns name and description of draft
 
+                // store Draft to hive
+                var storeThisDraft = DraftStore(
+                  name: thisDraft.draftName,
+                  description: thisDraft.draftdescription,
+                  groupID: thisDraft.groupID,
+                  draftID: thisDraft.draftID,
+                );
+                await StoreFunctions.addDraft(storeThisDraft);
+                //
+
                 setState(() {
                   // print('$broadCastState and Draft is ${thisDraft.draftName}');
                   String draftName = thisDraft.draftName;
@@ -132,7 +145,7 @@ class _DraftTabState extends State<DraftTab> {
 
                   widget.switchBroadcast(
                     broadCastState[0],
-                  ); // <-- update selected value
+                  ); //  update DropDown value list
                 });
               },
               child: Row(children: [Icon(Icons.save_alt), Text("Save Draft")]),

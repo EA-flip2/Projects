@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sms_project_1/data/draft_group_data.dart';
+import 'package:sms_project_1/objects/draft_group_data.dart';
 import 'package:sms_project_1/widget/contact_tile.dart';
 
 class DraftScreen extends StatefulWidget {
@@ -29,7 +29,7 @@ class _DraftScreenState extends State<DraftScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 8),
-            child: Text(getDraft().Draftdescription),
+            child: Text(getDraft().draftdescription),
           ),
 
           SizedBox(
