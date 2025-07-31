@@ -7,14 +7,14 @@ import 'package:sms_project_1/useful_k.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // opene hive boxes
+  // initialize hive
   await Hive.initFlutter();
-
+  // register hive objects
   Hive.registerAdapter(MessageStoreAdapter());
   Hive.registerAdapter(ContactStoreAdapter());
   Hive.registerAdapter(DraftStoreAdapter());
   Hive.registerAdapter(GroupStoreAdapter());
-
+  // open hive boxes
   await Hive.openBox<MessageStore>(msgHiveBox);
   await Hive.openBox<GroupStore>(groupHiveBox);
   await Hive.openBox<DraftStore>(draftHiveBox);

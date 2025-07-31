@@ -6,6 +6,6 @@ class Message {
 
   String? msg;
   final String groupID;
-  final int draftID;
+  final String draftID;
   final String messageID;
 }

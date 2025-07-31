@@ -19,7 +19,7 @@ class MessageStoreAdapter extends TypeAdapter<MessageStore> {
     return MessageStore(
       message: fields[0] as String,
       groupID: fields[1] as String,
-      draftID: fields[2] as int,
+      draftID: fields[2] as String,
       messageID: fields[3] as String,
     );
   }
@@ -63,7 +63,7 @@ class ContactStoreAdapter extends TypeAdapter<ContactStore> {
       name: fields[0] as String,
       number: fields[1] as String,
       groupID: fields[2] as String,
-      draftID: fields[3] as int,
+      draftID: fields[3] as String,
     );
   }
 
@@ -106,7 +106,7 @@ class DraftStoreAdapter extends TypeAdapter<DraftStore> {
       name: fields[0] as String,
       description: fields[1] as String,
       groupID: fields[3] as String,
-      draftID: fields[4] as int,
+      draftID: fields[4] as String,
     );
   }
 

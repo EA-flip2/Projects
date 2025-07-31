@@ -1,10 +1,10 @@
-import 'package:sms_project_1/data/draft_data.dart';
 import 'package:sms_project_1/data/groups_data.dart';
 import 'package:sms_project_1/objects/contact.dart';
 import 'package:sms_project_1/objects/group.dart';
+import 'package:uuid/uuid.dart';
 
 class DraftGroupData {
-  DraftGroupData({required this.groupID}) : draftID = getGroupLimit(groupID);
+  DraftGroupData({required this.groupID}) : draftID = const Uuid().v1();
 
   DraftGroupData.withID({
     required this.groupID,
@@ -15,10 +15,10 @@ class DraftGroupData {
   });
 
   final String groupID;
-  final int draftID;
+  final String draftID;
 
   String draftName = '';
-  List<int> indices = []; //indexes to exclude
+  List<int> excludedContactIndex = []; //indexes to exclude
 
   String draftdescription = ''; //description;
 
@@ -29,7 +29,7 @@ class DraftGroupData {
     final Group targetGroup = groups.firstWhere((group) => group.id == groupID);
 
     for (var i = 0; i < targetGroup.contacts.length; i++) {
-      if (!indices.contains(i)) {
+      if (!excludedContactIndex.contains(i)) {
         newContacts.add(targetGroup.contacts[i]);
       }
     }
@@ -42,8 +42,4 @@ class DraftGroupData {
   addDraftDescription(String description) {
     draftdescription = description;
   }
-}
-
-int getGroupLimit(String id) {
-  return drafts.where((draft) => draft.groupID == id).length + 1;
 }

@@ -11,24 +11,37 @@ class DraftTab extends StatefulWidget {
     super.key,
     required this.getGroup,
     required this.switchBroadcast,
-    required this.batchCtrl, // used to control how the contact tile behaves(showing checkbox or not)
-    required this.currentDraft, //just keeps the state
+    required this.batchCtrl,
   });
   final Group Function() getGroup;
-  final void Function(int currentdraft) currentDraft;
   final String batchCtrl;
   final void Function(String draftName) switchBroadcast;
+  // final void Function(String id) updatedraftId;
 
   @override
   State<DraftTab> createState() => _DraftTabState();
 }
 
+// would control batch ctrl and also the dropDown options
 List<String> broadCastState = ['All'];
-String currentDraft = broadCastState.last;
+
+// shows current option in dropdown
+String currentDraft = broadCastState[0];
 
 class _DraftTabState extends State<DraftTab> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    broadCastState = ['All'];
+  }
+
+  @override
   Widget build(BuildContext context) {
+    currentDraft = widget.batchCtrl;
+    String currentGroup = widget.getGroup().id;
+    List<DraftGroupData>? drafts = draftsData[currentGroup];
+
     return (widget.batchCtrl == 'All')
         ? Row(
           children: [
@@ -49,17 +62,15 @@ class _DraftTabState extends State<DraftTab> {
                     broadCastState.contains(selectedDraft)) {
                   setState(() {
                     currentDraft = selectedDraft;
+                    // widget.switchBroadcast(selectedDraft);
                   });
 
-                  int selectedDraftIndex = broadCastState.indexOf(
-                    selectedDraft,
-                  ); // since the draftId's are based on index
-                  widget.currentDraft(selectedDraftIndex);
-                  if (selectedDraftIndex != 0) {
+                  if (selectedDraft != 'All') {
                     moveToDraft(
-                      selectedDraftIndex,
+                      selectedDraft,
                       context,
                       widget.getGroup().id,
+                      widget.switchBroadcast,
                     ); //move to the selected draft screen
                   }
                 }
@@ -70,29 +81,46 @@ class _DraftTabState extends State<DraftTab> {
 
             IconButton(
               onPressed: () {
-                int draft_number =
-                    drafts
-                        .where((draft) => draft.groupID == widget.getGroup().id)
-                        .length;
-                widget.currentDraft(draft_number + 1);
-                //print(draft_number);
-                // create a draft
-                if (draft_number < 3) {
-                  drafts.add(DraftGroupData(groupID: widget.getGroup().id));
+                int draftNumber = 0; //tracks of number of drafts in a group
+                if (drafts != null) {
+                  draftNumber = drafts!.length;
+                  // add draft to group
+                  if (draftNumber < 3) {
+                    drafts!.add(DraftGroupData(groupID: currentGroup));
+                  } else {
+                    print("Limit Reached"); // change to snackbar
+                  }
+                } else {
+                  print("drafts was null");
+                  draftsData[currentGroup] = [
+                    DraftGroupData(groupID: currentGroup),
+                  ];
+                  drafts = draftsData[currentGroup];
+                }
+                // print(drafts);
+                print('$draftNumber drafts in group $currentGroup');
+                if (draftNumber < 3) {
+                  DraftGroupData thisDraft = drafts!.last;
+
+                  String defaultName = '${draftNumber + 1}';
+                  broadCastState.add('Draft $defaultName');
+                  thisDraft.draftName = defaultName; // adds default name
+
                   setState(() {
-                    broadCastState.add('Draft ${draft_number + 1}');
                     widget.switchBroadcast(
-                      broadCastState[draft_number + 1],
-                    ); // this is important to change tabs
+                      defaultName,
+                    ); // this is important to change the tab
                   });
                 } else {
-                  print("Limit Reached"); // change to snackbar
+                  // some snack bar
+                  setState(() {
+                    widget.switchBroadcast('All');
+                  });
                 }
               },
               icon: Icon(Icons.edit),
             ),
 
-            //exclude new some people
             SizedBox(width: 10),
 
             IconButton(onPressed: () {}, icon: Icon(Icons.update)),
@@ -104,6 +132,7 @@ class _DraftTabState extends State<DraftTab> {
         : Row(
           children: [
             Text('Make adjustment to group'),
+            //info icon
             IconButton(
               onPressed: () {
                 //some modal display with guide
@@ -111,20 +140,14 @@ class _DraftTabState extends State<DraftTab> {
               icon: Icon(Icons.info_outline),
             ),
             Spacer(),
+            //Save button
             TextButton(
-              //update ui here
               onPressed: () async {
-                var thisDraft = drafts.firstWhere(
-                  (draft) =>
-                      (draft.draftID ==
-                              broadCastState.indexOf(broadCastState.last) &&
-                          draft.groupID == widget.getGroup().id),
-                );
+                var thisDraft = drafts!.last;
                 thisDraft.getnewContacts(); // this remove unchecked contacts
                 await showNameDescriptionDialog(
                   context,
                   thisDraft,
-                  broadCastState.last,
                 ); // assigns name and description of draft
 
                 // store Draft to hive
@@ -132,32 +155,38 @@ class _DraftTabState extends State<DraftTab> {
                   name: thisDraft.draftName,
                   description: thisDraft.draftdescription,
                   groupID: thisDraft.groupID,
-                  draftID: thisDraft.draftID,
+                  draftID: currentDraft,
                 );
                 await StoreFunctions.addDraft(storeThisDraft);
                 //
 
-                setState(() {
-                  // print('$broadCastState and Draft is ${thisDraft.draftName}');
-                  String draftName = thisDraft.draftName;
-                  broadCastState[broadCastState.indexOf(broadCastState.last)] =
-                      draftName;
+                String draftName = thisDraft.draftName;
+                broadCastState[broadCastState.indexOf(broadCastState.last)] =
+                    draftName; // update dropDown with right name
 
+                setState(() {
                   widget.switchBroadcast(
                     broadCastState[0],
-                  ); //  update DropDown value list
+                  ); //  switch back to ALL broadcastState
                 });
               },
               child: Row(children: [Icon(Icons.save_alt), Text("Save Draft")]),
             ),
 
             SizedBox(width: 10),
+            //cancel button
             TextButton(
               onPressed: () {
+                try {
+                  var thisDraft = drafts!.last;
+                  broadCastState.removeLast(); // would change this soon
+                  StoreFunctions.deleteDraft(thisDraft.draftID);
+                  drafts!.removeLast();
+                } catch (e) {
+                  print("Problem cancelling new draft: $e");
+                }
                 setState(() {
                   widget.switchBroadcast(broadCastState[0]);
-                  broadCastState.removeLast();
-                  drafts.removeLast();
                 });
               },
               child: Row(
@@ -176,7 +205,6 @@ class _DraftTabState extends State<DraftTab> {
 Future<void> showNameDescriptionDialog(
   BuildContext context,
   DraftGroupData draft,
-  String draftName,
 ) async {
   final nameController = TextEditingController();
   final descController = TextEditingController();
@@ -203,10 +231,12 @@ Future<void> showNameDescriptionDialog(
         actions: [
           TextButton(
             onPressed: () {
+              // change draft descripton
               draft.addDraftDescription(descController.text.trim());
+              // change draft name
               draft.addDraftName(
                 nameController.text.trim().isEmpty
-                    ? draftName
+                    ? draft.draftName
                     : nameController.text.trim(),
               );
               Navigator.of(ctx).pop();
@@ -219,16 +249,20 @@ Future<void> showNameDescriptionDialog(
   );
 }
 
-void moveToDraft(int selectedDraftIndex, BuildContext context, String Groupid) {
-  DraftGroupData thisDraft = drafts.firstWhere(
-    (draft) =>
-        (draft.draftID == selectedDraftIndex && draft.groupID == Groupid),
+void moveToDraft(
+  String selectedDraft,
+  BuildContext context,
+  String Groupid,
+  void Function(String state) switchbroadcast,
+) {
+  DraftGroupData thisDraft = draftsData[Groupid]!.firstWhere(
+    (draft) => (draft.draftName == selectedDraft),
   );
 
   Navigator.of(context).push(
     MaterialPageRoute(
       builder: (ctx) {
-        return DraftScreen(draft: thisDraft);
+        return DraftScreen(draft: thisDraft, switchBatch: switchbroadcast);
       },
     ),
   );

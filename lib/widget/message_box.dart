@@ -6,7 +6,7 @@ import 'package:sms_project_1/tools/store_functions.dart';
 
 class MessageInputBox extends StatefulWidget {
   final String groupID;
-  final int draftID;
+  final String draftID;
   // final void Function(String) onSend;
 
   const MessageInputBox({

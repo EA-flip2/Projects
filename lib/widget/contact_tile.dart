@@ -8,23 +8,25 @@ class ContactTile extends StatefulWidget {
     required this.name,
     required this.number,
     required this.index,
-    required this.ID,
-    required this.draftID,
+    required this.groupID,
     required this.batch,
   });
 
   final String name;
   final String number;
-  final String ID;
+  final String groupID;
   final String batch;
   final int index;
-  final int Function() draftID;
 
   @override
   State<ContactTile> createState() => _ContactTileState();
 }
 
 class _ContactTileState extends State<ContactTile> {
+  List<DraftGroupData> drafts() {
+    return draftsData[widget.groupID] ?? [];
+  }
+
   bool ischecked = true;
 
   @override
@@ -38,41 +40,33 @@ class _ContactTileState extends State<ContactTile> {
     }
   }
 
-  void addDraftIndex(String id, int index, int draftID) {
+  // add contact(index) to be removed fron draft by unchecking it
+  void addDraftIndex(int index, String draftName) {
     //add index to draft List
     try {
-      if (drafts.any((draft) => draft.groupID == id)) {
-        drafts
-            .firstWhere(
-              (draft) => (draft.groupID == id && draft.draftID == draftID),
-            )
-            .indices
+      if (drafts().isNotEmpty) {
+        drafts()
+            .firstWhere((draft) => draft.draftName == draftName)
+            .excludedContactIndex
             .add(index);
-        print('adding $index to draft with id $id and  draftId = $draftID');
-      } else {
-        DraftGroupData(groupID: id).indices.add(index);
-        print('adding $index to draft with id $id and  draftId = $draftID');
+        print('adding $index to ExemptIndex ,draft  name = $draftName');
       }
     } catch (e) {
-      print("Problem adding contact to $draftID:$e");
+      print("Problem adding contact to $draftName:$e");
     }
   }
 
-  void rmDraftIndex(String id, int index, int draftID) {
+  void rmDraftIndex(int index, String draftName) {
     // put this in a try statement
     try {
-      drafts
-          .firstWhere(
-            (draft) => draft.groupID == id && draft.draftID == draftID,
-          )
-          .indices
+      drafts()
+          .firstWhere((draft) => draft.draftName == draftName)
+          .excludedContactIndex
           .remove(index);
-      print(
-        'removing $index from draft with group id $id and  draftId = $draftID',
-      );
+      print('removing $index from ExemptIndex , draftName = $draftName');
     } catch (e) {
       // Optionally handle the error, e.g., log or ignore if not found
-      print("Could not remove contact from $draftID : $e");
+      print("Could not remove contact from $draftName : $e");
     }
   }
 
@@ -88,18 +82,14 @@ class _ContactTileState extends State<ContactTile> {
                 value: ischecked,
                 onChanged: (bool) {
                   setState(() {
-                    !ischecked
-                        ? rmDraftIndex(
-                          widget.ID,
-                          widget.index,
-                          widget.draftID(),
-                        )
-                        // removes index from draft
-                        : addDraftIndex(
-                          widget.ID,
-                          widget.index,
-                          widget.draftID(),
-                        ); //adds index to draft
+                    !ischecked //true means its not check
+                        // removes index from draft by adding it to exemptIndex
+                        ?
+                        //adds index to draft by removing it from exemptIndex
+                        rmDraftIndex(widget.index, widget.batch)
+                        // print("restoring contact")
+                        : addDraftIndex(widget.index, widget.batch);
+                    //print("Removig Contact");
 
                     ischecked = !ischecked;
                   });

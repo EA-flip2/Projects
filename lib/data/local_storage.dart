@@ -12,7 +12,7 @@ class MessageStore extends HiveObject {
   String groupID;
 
   @HiveField(2)
-  int draftID;
+  String draftID;
 
   @HiveField(3)
   String messageID; //timestamp
@@ -38,7 +38,7 @@ class ContactStore extends HiveObject {
   String groupID;
 
   @HiveField(3)
-  int draftID;
+  String draftID;
 
   ContactStore({
     required this.name,
@@ -61,7 +61,7 @@ class DraftStore extends HiveObject {
   String groupID;
 
   @HiveField(4)
-  int draftID;
+  String draftID;
 
   DraftStore({
     required this.name,
@@ -89,3 +89,5 @@ class GroupStore extends HiveObject {
     required this.groupID,
   });
 }
+
+// dart run build_runner build --delete-conflicting-outputs

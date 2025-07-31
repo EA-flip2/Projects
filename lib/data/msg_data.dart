@@ -5,7 +5,7 @@ import 'package:sms_project_1/useful_k.dart';
 
 List<Message> messages = [];
 
-Future<void> loadMessages(String groupID, int draftID) async {
+Future<void> loadMessages(String groupID, String draftID) async {
   Box<MessageStore> msgBox = Hive.box(msgHiveBox);
   try {
     List<Message> Xmessages =

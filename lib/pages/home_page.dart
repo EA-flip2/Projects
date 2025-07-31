@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sms_project_1/data/draft_data.dart';
 import 'package:sms_project_1/data/groups_data.dart';
 import 'package:sms_project_1/pages/home_screen.dart';
 import 'package:sms_project_1/pages/new_group.dart';
@@ -17,17 +16,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String activeScreen = 'home';
   // load data
-  Future<void> loadData() async {
-    await loadDrafts();
-    await loadGroups();
-    return;
-  }
+  // Future<void> loadData() async {
+  //   await loadDrafts();
+  //   await loadGroups();
+  //   return;
+  // }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    loadDrafts();
+    loadGroups();
   }
 
   void addNewGroup(Group newGroup) {

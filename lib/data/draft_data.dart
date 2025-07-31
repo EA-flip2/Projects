@@ -4,12 +4,16 @@ import 'package:sms_project_1/data/local_storage.dart';
 import 'package:sms_project_1/objects/contact.dart';
 import 'package:sms_project_1/useful_k.dart';
 
-List<DraftGroupData> drafts = []; //stores draft (not in hive but for )
+//List<DraftGroupData> drafts = []; //stores draft (not in hive but for ){goupId:[]}
+Map<String, List<DraftGroupData>> draftsData = {};
 
-Future<void> loadDrafts() async {
+// load draft for a particular group
+Future<void> loadDrafts(String groupID) async {
+  //get draftBox from Hive
   Box<DraftStore> draftBox = Hive.box<DraftStore>(draftHiveBox);
+  // update draftsData Map
   try {
-    drafts =
+    draftsData[groupID] =
         draftBox.keys.map((key) {
           DraftStore value = draftBox.get(key)!;
           return DraftGroupData.withID(
@@ -29,7 +33,8 @@ Future<void> loadDrafts() async {
   }
 }
 
-List<Contact?> loadDraftContact(int draftID, String groupID) {
+List<Contact?> loadDraftContact(String draftID, String groupID) {
+  // get contactBox from Hive
   Box<ContactStore> contactBox = Hive.box(contactHiveBox);
   List<Contact?> contacts;
   try {

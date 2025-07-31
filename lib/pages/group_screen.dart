@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sms_project_1/data/msg_data.dart';
+
 import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/useful_k.dart';
 import 'package:sms_project_1/widget/contact_tile.dart';
@@ -16,35 +16,25 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
-  String batchCtrl = 'All';
+  String batchCtrl = 'All'; // also doubles as draftName
 
   Group getGroup() {
     return widget.group;
   }
 
-  int currentDraft = 0; // help to pass draftID to messageBox
-
-  int getCurrentDraft() {
-    return currentDraft;
-  }
-
-  void updateCurrentDraft(int currentdraft) {
-    setState(() {
-      currentDraft = currentdraft;
-    });
-  }
-
   void switchbatch(String broadCastState) {
     setState(() {
-      batchCtrl = broadCastState;
+      batchCtrl =
+          broadCastState; // helpful to help contactTile show checkbox/numbers & setting dropdown current value
     });
   }
 
+  // restore defaults
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    loadMessages(widget.group.id, currentDraft);
+    //loadMessages(widget.group.id, currentDraft);
+    /// loadDrafts(widget.group.id);
   }
 
   @override
@@ -73,11 +63,12 @@ class _GroupScreenState extends State<GroupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                //description
                 Text(
                   "Description: ",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: 1),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 25,
@@ -98,10 +89,9 @@ class _GroupScreenState extends State<GroupScreen> {
                       return ContactTile(
                         name: getGroup().contacts[index].name,
                         number: getGroup().contacts[index].number.toString(),
-                        ID: getGroup().id,
+                        groupID: getGroup().id,
                         index: index,
                         batch: batchCtrl,
-                        draftID: getCurrentDraft,
                       );
                     },
                   ),
@@ -117,16 +107,15 @@ class _GroupScreenState extends State<GroupScreen> {
                     getGroup: getGroup,
                     switchBroadcast: switchbatch,
                     batchCtrl: batchCtrl,
-                    currentDraft: updateCurrentDraft,
                   ),
                 ),
                 SizedBox(height: getHeight(context) * 0.05),
-                (currentDraft == 0)
+                (batchCtrl == 'All')
                     ? SizedBox(
                       width: getWidth(context) * 0.95,
                       child: MessageInputBox(
                         groupID: widget.group.id,
-                        draftID: 0,
+                        draftID: 'All',
                       ),
                     )
                     : SizedBox(),
