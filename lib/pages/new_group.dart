@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sms_project_1/data/contact_data.dart';
+import 'package:sms_project_1/data/groups_data.dart';
 import 'package:sms_project_1/objects/contact.dart';
 import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/useful_k.dart';
@@ -10,7 +12,7 @@ class CreateGroup extends StatefulWidget {
     required this.returnHome,
   });
 
-  final void Function(Group newgroup) addGroup;
+  final Future<void> Function(Group newgroup) addGroup;
   final void Function() returnHome;
 
   @override
@@ -22,7 +24,7 @@ class _CreateGroupState extends State<CreateGroup> {
     contactList.add(Contact(name: name, number: number));
   }
 
-  List<Contact> contactList = [];
+  final List<Contact> contactList = [];
   final TextEditingController nameCtrl = TextEditingController();
   final TextEditingController descriptionCtrl = TextEditingController();
 
@@ -119,14 +121,18 @@ class _CreateGroupState extends State<CreateGroup> {
                     children: [
                       //Save
                       TextButton(
-                        onPressed: () {
-                          widget.addGroup(
+                        onPressed: () async {
+                          print(contactList);
+                          // save group
+                          await widget.addGroup(
                             Group.withContacts(
                               name: nameCtrl.text.trim(),
                               description: descriptionCtrl.text.trim(),
                               initialContacts: contactList,
                             ),
                           );
+                          // save contacts to Hive
+                          saveContactHive(contactList, groups.last.id, 'All');
                           widget.returnHome();
                         },
                         child: Text("Save"),

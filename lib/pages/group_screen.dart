@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:sms_project_1/data/draft_data.dart';
 import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/useful_k.dart';
 import 'package:sms_project_1/widget/contact_tile.dart';
@@ -17,6 +17,7 @@ class GroupScreen extends StatefulWidget {
 
 class _GroupScreenState extends State<GroupScreen> {
   String batchCtrl = 'All'; // also doubles as draftName
+  bool isLoadingDrafts = true;
 
   Group getGroup() {
     return widget.group;
@@ -29,16 +30,24 @@ class _GroupScreenState extends State<GroupScreen> {
     });
   }
 
-  // restore defaults
   @override
   void initState() {
     super.initState();
     //loadMessages(widget.group.id, currentDraft);
-    /// loadDrafts(widget.group.id);
+    checkHive();
+    print(widget.group.id);
+    loadDrafts(widget.group.id).then((_) {
+      setState(() {
+        isLoadingDrafts = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoadingDrafts) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         SafeArea(
@@ -92,6 +101,7 @@ class _GroupScreenState extends State<GroupScreen> {
                         groupID: getGroup().id,
                         index: index,
                         batch: batchCtrl,
+                        thisContact: getGroup().contacts[index],
                       );
                     },
                   ),

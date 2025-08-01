@@ -6,6 +6,13 @@ class Group {
   Group({required this.name, required this.description})
     : id = const Uuid().v1();
   // Group.addcontact(List<Contact>)
+  Group.fromBox({
+    required this.name,
+    required this.description,
+    required List<Contact> initialContacts,
+    required this.id,
+  }) : contacts = initialContacts;
+
   Group.withContacts({
     required this.name,
     required this.description,
@@ -20,13 +27,6 @@ class Group {
   //contacts
   List<Contact> contacts = [];
   //active contacts
-
+  List<String> groupDraft = ['All'];
   // tools to import contacts
 }
-
-
-
-
-/*
-   
-          */

@@ -101,22 +101,3 @@ void addContact(
     },
   );
 }
-
-
-
-/*
- groups
-                          .where((group) => group.name == ID)
-                          .first
-                          .contacts
-                          .add(
-                            Contact(
-                              name:
-                                  contactName.text.trim().isEmpty
-                                      ? "Unknown"
-                                      : contactName.text.trim(),
-
-                              number: contactNumber.text.trim(),
-                            ),
-                          );
-                      Navigator.of(context).pop();*/

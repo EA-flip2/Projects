@@ -31,6 +31,7 @@ class _DraftScreenState extends State<DraftScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
+        //print('What dey go on');
         widget.switchBatch('All');
       },
       child: Scaffold(
@@ -52,6 +53,7 @@ class _DraftScreenState extends State<DraftScreen> {
                 itemCount: getDraft().newContacts.length,
                 itemBuilder: (context, index) {
                   return ContactTile(
+                    thisContact: getDraft().newContacts[index],
                     name: getDraft().newContacts[index].name,
                     number: getDraft().newContacts[index].number.toString(),
                     groupID: getDraft().groupID,

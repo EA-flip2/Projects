@@ -5,6 +5,7 @@ import 'package:sms_project_1/pages/new_group.dart';
 import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/data/local_storage.dart';
 import 'package:sms_project_1/tools/store_functions.dart';
+import 'package:sms_project_1/useful_k.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,33 +16,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String activeScreen = 'home';
-  // load data
-  // Future<void> loadData() async {
-  //   await loadDrafts();
-  //   await loadGroups();
-  //   return;
-  // }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     loadGroups();
+    //checkHive(); // to monitor Hive box status
   }
 
-  void addNewGroup(Group newGroup) {
+  // adds a new group to groups[], and stores it in hive
+  Future<void> addNewGroup(Group newGroup) async {
+    print('${newGroup.contacts.length} group length');
     //  await store.addGroup(newGroup);
-    setState(() {
-      var storeThisgroup = GroupStore(
-        name: newGroup.name,
-        description: newGroup.description,
-        groupID: newGroup.id,
-      );
-      StoreFunctions.addGroup(storeThisgroup); // save group's data to hive
-      groups.add(newGroup);
-    });
+    var storeThisgroup = GroupStore(
+      name: newGroup.name,
+      description: newGroup.description,
+      groupID: newGroup.id,
+    );
+    // save group's data to hive
+    await StoreFunctions.addGroup(storeThisgroup);
+    groups.add(newGroup);
+
+    print('Done saving group: ${newGroup.id}');
   }
 
+  // used to return from create groupScreen
   void returnHome() {
     setState(() {
       activeScreen = 'home';
@@ -73,6 +73,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// notice of no groups
 Widget nodisplay() {
   return Card(
     child: Center(

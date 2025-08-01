@@ -22,26 +22,79 @@ class DraftTab extends StatefulWidget {
   State<DraftTab> createState() => _DraftTabState();
 }
 
-// would control batch ctrl and also the dropDown options
-List<String> broadCastState = ['All'];
-
-// shows current option in dropdown
-String currentDraft = broadCastState[0];
-
 class _DraftTabState extends State<DraftTab> {
+  // would control batch ctrl and also the dropDown options
+  late List<String> broadCastState;
+  late String currentGroup;
+  late List<DraftGroupData>? drafts;
+  // shows current option in dropdown
+  late String currentDraft;
+
+  // adds a new group to groups[], and stores it in hive
+  Future<void> addNewDraft(DraftGroupData thisdraft) async {
+    //  await store.addGroup(newGroup);
+    var storeThisDraft = DraftStore(
+      name: thisdraft.draftName,
+      description: thisdraft.draftdescription,
+      groupID: thisdraft.groupID,
+      draftID: thisdraft.draftID,
+    );
+    // save the draft to Hive box and draftsData Map
+    await StoreFunctions.addDraft(storeThisDraft);
+    // draftsData.putIfAbsent(currentGroup, () => []);
+    draftsData[currentGroup]!.add(thisdraft);
+    drafts = draftsData[currentGroup];
+  }
+
+  // limit reached snackbar
+  void LimitReached(BuildContext context) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Draft limit reached (3 max)")));
+    setState(() {
+      currentDraft = 'All';
+      widget.switchBroadcast('All');
+    });
+  }
+
+  void loadStateFromData() {
+    drafts = draftsData[currentGroup] ?? [];
+    try {
+      print(drafts!.length);
+    } catch (e) {
+      print('drafts[${widget.getGroup().id}] is empty');
+    }
+    drafts!.length;
+    broadCastState = ['All'];
+
+    for (var draft in drafts!) {
+      broadCastState.add(draft.draftName);
+    }
+
+    currentDraft = widget.batchCtrl;
+  }
+
+  void refreshState() {
+    setState(() {
+      loadStateFromData();
+    });
+  }
+
+  // shows current option in dropdown
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    broadCastState = ['All'];
+
+    currentGroup = widget.getGroup().id;
+    loadStateFromData();
   }
 
   @override
   Widget build(BuildContext context) {
+    // makes sure dropDown is All on returning from draftScreen
     currentDraft = widget.batchCtrl;
-    String currentGroup = widget.getGroup().id;
-    List<DraftGroupData>? drafts = draftsData[currentGroup];
-
     return (widget.batchCtrl == 'All')
         ? Row(
           children: [
@@ -66,6 +119,7 @@ class _DraftTabState extends State<DraftTab> {
                   });
 
                   if (selectedDraft != 'All') {
+                    //print('Move to page $selectedDraft');
                     moveToDraft(
                       selectedDraft,
                       context,
@@ -80,7 +134,7 @@ class _DraftTabState extends State<DraftTab> {
             Spacer(),
 
             IconButton(
-              onPressed: () {
+              onPressed: () async {
                 int draftNumber = 0; //tracks of number of drafts in a group
                 if (drafts != null) {
                   draftNumber = drafts!.length;
@@ -103,7 +157,10 @@ class _DraftTabState extends State<DraftTab> {
                   DraftGroupData thisDraft = drafts!.last;
 
                   String defaultName = '${draftNumber + 1}';
-                  broadCastState.add('Draft $defaultName');
+                  setState(() {
+                    broadCastState.add('Draft $defaultName');
+                  });
+
                   thisDraft.draftName = defaultName; // adds default name
 
                   setState(() {
@@ -113,9 +170,7 @@ class _DraftTabState extends State<DraftTab> {
                   });
                 } else {
                   // some snack bar
-                  setState(() {
-                    widget.switchBroadcast('All');
-                  });
+                  LimitReached(context);
                 }
               },
               icon: Icon(Icons.edit),
@@ -144,25 +199,28 @@ class _DraftTabState extends State<DraftTab> {
             TextButton(
               onPressed: () async {
                 var thisDraft = drafts!.last;
-                thisDraft.getnewContacts(); // this remove unchecked contacts
+
                 await showNameDescriptionDialog(
                   context,
                   thisDraft,
                 ); // assigns name and description of draft
 
-                // store Draft to hive
-                var storeThisDraft = DraftStore(
-                  name: thisDraft.draftName,
-                  description: thisDraft.draftdescription,
-                  groupID: thisDraft.groupID,
-                  draftID: currentDraft,
-                );
-                await StoreFunctions.addDraft(storeThisDraft);
-                //
-
                 String draftName = thisDraft.draftName;
-                broadCastState[broadCastState.indexOf(broadCastState.last)] =
-                    draftName; // update dropDown with right name
+                int lastIndex = broadCastState.length - 1;
+
+                broadCastState.contains(draftName)
+                    ? draftName = '$draftName' + '*'
+                    : draftName = draftName;
+
+                thisDraft.draftName = draftName;
+
+                setState(() {
+                  broadCastState[lastIndex] = draftName;
+                });
+                // update dropDown with right name
+
+                await addNewDraft(thisDraft);
+                thisDraft.getnewContacts(); // this remove unchecked contacts
 
                 setState(() {
                   widget.switchBroadcast(
@@ -252,10 +310,10 @@ Future<void> showNameDescriptionDialog(
 void moveToDraft(
   String selectedDraft,
   BuildContext context,
-  String Groupid,
+  String groupid,
   void Function(String state) switchbroadcast,
 ) {
-  DraftGroupData thisDraft = draftsData[Groupid]!.firstWhere(
+  DraftGroupData thisDraft = draftsData[groupid]!.firstWhere(
     (draft) => (draft.draftName == selectedDraft),
   );
 
@@ -268,7 +326,4 @@ void moveToDraft(
   );
 }
 
-
 // use maps for active draft list {id:name, 0:all}
-
-

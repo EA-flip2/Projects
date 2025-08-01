@@ -1,3 +1,4 @@
+import 'package:sms_project_1/data/contact_data.dart';
 import 'package:sms_project_1/data/groups_data.dart';
 import 'package:sms_project_1/objects/contact.dart';
 import 'package:sms_project_1/objects/group.dart';
@@ -24,13 +25,15 @@ class DraftGroupData {
 
   List<Contact> newContacts = [];
 
-  void getnewContacts() {
+  void getnewContacts() async {
     // fetch specific group by id
     final Group targetGroup = groups.firstWhere((group) => group.id == groupID);
 
     for (var i = 0; i < targetGroup.contacts.length; i++) {
       if (!excludedContactIndex.contains(i)) {
         newContacts.add(targetGroup.contacts[i]);
+        // add contact to draftStore in Hive
+        await addContactToDraft(targetGroup.contacts[i], draftID);
       }
     }
   }

@@ -1,0 +1,248 @@
+
+import 'package:flutter/material.dart';
+import 'package:sms_project_1/data/draft_data.dart';
+import 'package:sms_project_1/objects/draft_group_data.dart';
+import 'package:sms_project_1/data/local_storage.dart';
+import 'package:sms_project_1/objects/group.dart';
+import 'package:sms_project_1/pages/draft_screen.dart';
+import 'package:sms_project_1/tools/store_functions.dart';
+
+class DraftTab extends StatefulWidget {
+  DraftTab({
+    super.key,
+    required this.getGroup,
+    required this.switchBroadcast,
+    required this.batchCtrl,
+  });
+
+  final Group Function() getGroup;
+  final String batchCtrl;
+  final void Function(String draftName) switchBroadcast;
+
+  @override
+  State<DraftTab> createState() => _DraftTabState();
+}
+
+class _DraftTabState extends State<DraftTab> {
+  late List<String> broadCastState;
+  late String currentDraft;
+  List<DraftGroupData>? drafts;
+
+  @override
+  void initState() {
+    super.initState();
+
+    String groupID = widget.getGroup().id;
+    drafts = draftsData[groupID];
+
+    broadCastState = ['All'];
+    if (drafts != null) {
+      for (var d in drafts!) {
+        broadCastState.add(d.draftName);
+      }
+    }
+
+    currentDraft = widget.batchCtrl;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return (currentDraft == 'All')
+        ? Row(
+          children: [
+            DropdownButton(
+              value: currentDraft,
+              items:
+                  broadCastState
+                      .map(
+                        (String activeDraft) => DropdownMenuItem(
+                          value: activeDraft,
+                          child: Text(activeDraft),
+                        ),
+                      )
+                      .toList(),
+              onChanged: (String? selectedDraft) {
+                if (selectedDraft != null &&
+                    broadCastState.contains(selectedDraft)) {
+                  setState(() {
+                    currentDraft = selectedDraft;
+                  });
+
+                  if (selectedDraft != 'All') {
+                    moveToDraft(
+                      selectedDraft,
+                      context,
+                      widget.getGroup().id,
+                      widget.switchBroadcast,
+                    );
+                  }
+                }
+              },
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {
+                int draftNumber = drafts?.length ?? 0;
+
+                if (draftNumber < 3) {
+                  // Add new draft
+                  final newDraft = DraftGroupData(
+                    groupID: widget.getGroup().id,
+                  );
+                  draftsData[widget.getGroup().id] = drafts ?? [];
+                  draftsData[widget.getGroup().id]!.add(newDraft);
+                  drafts = draftsData[widget.getGroup().id];
+
+                  String defaultName = '${draftNumber + 1}';
+                  newDraft.draftName = defaultName;
+
+                  setState(() {
+                    broadCastState.add('Draft $defaultName');
+                    currentDraft = defaultName;
+                    widget.switchBroadcast(defaultName);
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Draft limit reached (3 max)")),
+                  );
+                  setState(() {
+                    currentDraft = 'All';
+                    widget.switchBroadcast('All');
+                  });
+                }
+              },
+              icon: const Icon(Icons.edit),
+            ),
+            const SizedBox(width: 10),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.update)),
+            const SizedBox(width: 10),
+          ],
+        )
+        : Row(
+          children: [
+            const Text('Make adjustment to group'),
+            IconButton(
+              onPressed: () {
+                // guide modal
+              },
+              icon: const Icon(Icons.info_outline),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () async {
+                if (drafts == null || drafts!.isEmpty) return;
+
+                var thisDraft = drafts!.last;
+                thisDraft.getnewContacts();
+
+                await showNameDescriptionDialog(context, thisDraft);
+
+                var storeThisDraft = DraftStore(
+                  name: thisDraft.draftName,
+                  description: thisDraft.draftdescription,
+                  groupID: thisDraft.groupID,
+                  draftID: currentDraft,
+                );
+
+                await StoreFunctions.addDraft(storeThisDraft);
+
+                int lastIndex = broadCastState.length - 1;
+                setState(() {
+                  broadCastState[lastIndex] = thisDraft.draftName;
+                  currentDraft = 'All';
+                  widget.switchBroadcast('All');
+                });
+              },
+              child: Row(children: [Icon(Icons.save_alt), Text("Save Draft")]),
+            ),
+            const SizedBox(width: 10),
+            TextButton(
+              onPressed: () {
+                try {
+                  var thisDraft = drafts!.last;
+                  StoreFunctions.deleteDraft(thisDraft.draftID);
+                  drafts!.removeLast();
+                  setState(() {
+                    broadCastState.removeLast();
+                    currentDraft = 'All';
+                    widget.switchBroadcast('All');
+                  });
+                } catch (e) {
+                  print("Cancel failed: $e");
+                }
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.cancel_outlined),
+                  SizedBox(width: 5),
+                  Text("Cancel"),
+                ],
+              ),
+            ),
+          ],
+        );
+  }
+}
+
+Future<void> showNameDescriptionDialog(
+  BuildContext context,
+  DraftGroupData draft,
+) async {
+  final nameController = TextEditingController();
+  final descController = TextEditingController();
+
+  return showDialog(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        title: Text('Enter Draft Name & Description'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: descController,
+              decoration: InputDecoration(labelText: 'Description'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              draft.addDraftDescription(descController.text.trim());
+              draft.addDraftName(
+                nameController.text.trim().isEmpty
+                    ? draft.draftName
+                    : nameController.text.trim(),
+              );
+              Navigator.of(ctx).pop();
+            },
+            child: Text('Done'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void moveToDraft(
+  String selectedDraft,
+  BuildContext context,
+  String groupID,
+  void Function(String state) switchbroadcast,
+) {
+  DraftGroupData thisDraft = draftsData[groupID]!.firstWhere(
+    (draft) => (draft.draftName == selectedDraft),
+  );
+
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder:
+          (ctx) => DraftScreen(draft: thisDraft, switchBatch: switchbroadcast),
+    ),
+  );
+}

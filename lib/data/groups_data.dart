@@ -5,14 +5,14 @@ import 'package:sms_project_1/objects/group.dart';
 import 'package:sms_project_1/useful_k.dart';
 
 List<Group> groups = [
-  Group.withContacts(
-    name: 'Reds',
-    description: 'Contributions towards football game',
-    initialContacts: [
-      Contact(name: "Emma", number: "0597608916"),
-      Contact(name: "Flip", number: "0535029108"),
-    ],
-  ),
+  // Group.withContacts(
+  //   name: 'Reds',
+  //   description: 'Contributions towards football game',
+  //   initialContacts: [
+  //     Contact(name: "Emma", number: "0597608916"),
+  //     Contact(name: "Flip", number: "0535029108"),
+  //   ],
+  // ),
 ];
 
 Future<void> loadGroups() async {
@@ -21,7 +21,8 @@ Future<void> loadGroups() async {
     groups =
         draftBox.keys.map((key) {
           GroupStore value = draftBox.get(key)!;
-          return Group.withContacts(
+          return Group.fromBox(
+            id: value.groupID,
             name: value.name,
             description: value.description,
             initialContacts:
@@ -40,7 +41,7 @@ List<Contact?> loadGroupContact(String groupID) {
     List<Contact?> contacts =
         contactBox.keys.map((draftcontact) {
           ContactStore value = contactBox.get(draftcontact)!;
-          if (value.groupID == groupID) {
+          if (value.groupIDs.contains(groupID)) {
             return Contact(name: value.name, number: value.number);
           }
         }).toList();

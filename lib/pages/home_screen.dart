@@ -4,8 +4,8 @@ import 'package:sms_project_1/pages/group_screen.dart';
 import 'package:sms_project_1/widget/group_cards.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key, required this.groupsObjects});
-  List<Group> groupsObjects;
+  const HomeScreen({super.key, required this.groupsObjects});
+  final List<Group> groupsObjects;
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }

@@ -62,8 +62,8 @@ class ContactStoreAdapter extends TypeAdapter<ContactStore> {
     return ContactStore(
       name: fields[0] as String,
       number: fields[1] as String,
-      groupID: fields[2] as String,
-      draftID: fields[3] as String,
+      groupIDs: (fields[2] as List).cast<String>(),
+      draftIDs: (fields[3] as List).cast<String>(),
     );
   }
 
@@ -76,9 +76,9 @@ class ContactStoreAdapter extends TypeAdapter<ContactStore> {
       ..writeByte(1)
       ..write(obj.number)
       ..writeByte(2)
-      ..write(obj.groupID)
+      ..write(obj.groupIDs)
       ..writeByte(3)
-      ..write(obj.draftID);
+      ..write(obj.draftIDs);
   }
 
   @override

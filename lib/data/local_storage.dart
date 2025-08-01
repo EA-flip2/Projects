@@ -35,16 +35,16 @@ class ContactStore extends HiveObject {
   String number;
 
   @HiveField(2)
-  String groupID;
+  List<String> groupIDs;
 
   @HiveField(3)
-  String draftID;
+  List<String> draftIDs;
 
   ContactStore({
     required this.name,
     required this.number,
-    required this.groupID,
-    required this.draftID,
+    required this.groupIDs,
+    required this.draftIDs,
   });
 }
 
