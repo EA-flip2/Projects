@@ -22,10 +22,10 @@ class ImageBox extends StatefulWidget {
 class _ImageBoxState extends State<ImageBox> {
   File? _selectedImage;
 
-  Future<void> _takePicture() async {
+  Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(
-      source: ImageSource.camera,
+      source: source,
       maxWidth: 600,
     );
 
@@ -34,16 +34,46 @@ class _ImageBoxState extends State<ImageBox> {
     setState(() {
       _selectedImage = File(pickedImage.path);
     });
+
     widget.passImage(
       widget.mapKey,
       AssetDataObject(image: _selectedImage!, description: widget.description),
     );
   }
 
+  void _showImageSourcePicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera_alt),
+              title: Text('Take photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library),
+              title: Text('Choose from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _takePicture,
+      onTap: _showImageSourcePicker,
       child: Container(
         padding: EdgeInsets.all(16),
         height: 220,
@@ -76,3 +106,22 @@ class _ImageBoxState extends State<ImageBox> {
     );
   }
 }
+
+
+  // Future<void> _takePicture() async {
+  //   final picker = ImagePicker();
+  //   final pickedImage = await picker.pickImage(
+  //     source: ImageSource.camera,
+  //     maxWidth: 600,
+  //   );
+
+  //   if (pickedImage == null) return;
+
+  //   setState(() {
+  //     _selectedImage = File(pickedImage.path);
+  //   });
+  //   widget.passImage(
+  //     widget.mapKey,
+  //     AssetDataObject(image: _selectedImage!, description: widget.description),
+  //   );
+  // }

@@ -23,6 +23,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _assetLoad = ref.read(assetRecordsProvider.notifier).loadData();
   }
 
+  // definition of the dialog
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Alert!!"),
+          content: const Text("Done"),
+          actions: [
+            MaterialButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void createAsset() {
     Navigator.of(
       context,
@@ -55,6 +76,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
               setState(() {
                 _isUploading = false;
+                _showDialog(context);
               });
             },
           ),
