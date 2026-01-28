@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 // import 'package:path/path.dart';
 
-Future<void> uploadAsset(AssetObject asset) async {
+Future<({int statusCode, String body})> uploadAsset(AssetObject asset) async {
   final uri = Uri.parse(
-    'https://n8n.srv1278199.hstgr.cloud/webhook/createAsset',
+    'https://n8n.srv1278199.hstgr.cloud/webhook/clould-vision',
   );
 
   var request = http.MultipartRequest('POST', uri);
@@ -13,6 +13,15 @@ Future<void> uploadAsset(AssetObject asset) async {
   String extension = p.extension(asset.Tracker.image.path);
 
   request.fields['description'] = asset.Tracker.description;
+  request.files.add(
+    await http.MultipartFile.fromPath(
+      asset.assetId.description, // assetId
+      asset.assetId.image.path,
+      filename: 'asset_id$extension',
+    ),
+  );
+
+  extension = p.extension(asset.assetId.image.path);
   request.files.add(
     await http.MultipartFile.fromPath(
       asset.Tracker.description, // Tracker
@@ -28,21 +37,16 @@ Future<void> uploadAsset(AssetObject asset) async {
       await http.MultipartFile.fromPath(
         'Sim_Card', // Tracker
         simfile.image.path,
-        filename: 'sim_dat$extension',
+        filename: 'sim_data$extension',
       ),
     );
   }
 
-  try {
-    final response = await request.send();
+  final response = await request.send();
+  final body = await response.stream.bytesToString();
 
-    if (response.statusCode == 200) {
-      final body = await response.stream.bytesToString();
-      print('✅ N8N Response: $body');
-    } else {
-      print('❌ Failed: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('❌ Error: $e');
-  }
+  return (
+    statusCode: response.statusCode,
+    body: body,
+  );
 }

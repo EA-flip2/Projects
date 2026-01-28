@@ -13,6 +13,7 @@ class CreateAsset extends ConsumerStatefulWidget {
 
 class _CreateAssetState extends ConsumerState<CreateAsset> {
   Map<String, AssetDataObject> assetData = {}; //simimei, tracker, phone
+  bool isChecked = false;
 
   void passedData(String mapKey, AssetDataObject asset) {
     assetData[mapKey] = asset;
@@ -21,7 +22,12 @@ class _CreateAssetState extends ConsumerState<CreateAsset> {
   void save() {
     final newAssetObject = AssetObject(
       Tracker: assetData['tracker']!,
-      Sim: [assetData['sim_imei']!],
+      Sim: [
+        assetData['sim_imei']!,
+        if (assetData.containsKey('sim_data')) assetData['sim_data']!,
+      ],
+
+      assetId: assetData['assetId']!,
     );
     ref.read(assetRecordsProvider.notifier).addAsset(newAssetObject);
   }
@@ -39,6 +45,14 @@ class _CreateAssetState extends ConsumerState<CreateAsset> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ImageBox(
+              mapKey: "assetId",
+              passImage: passedData,
+              description: "Picture of Asset Number",
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            ImageBox(
               mapKey: "tracker",
               passImage: passedData,
               description: "Picture of Tracker IMEI",
@@ -49,7 +63,29 @@ class _CreateAssetState extends ConsumerState<CreateAsset> {
               passImage: passedData,
               description: "Picture of SIM",
             ),
-            SizedBox(height: 30),
+
+            Row(
+              children: [
+                Checkbox(
+                  value: isChecked,
+                  onChanged: (value) {
+                    setState(() {
+                      isChecked = value ?? false;
+                    });
+                  },
+                ),
+                const Text('Add extra data'),
+              ],
+            ),
+
+            //  Conditional widget
+            if (isChecked)
+              ImageBox(
+                mapKey: "sim_data",
+                passImage: passedData,
+                description: "Picture of SIM (extra data)",
+              ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               // mainAxisSize: MainAxisSize.min,
@@ -70,6 +106,9 @@ class _CreateAssetState extends ConsumerState<CreateAsset> {
                   child: Text("Save"),
                 ),
               ],
+            ),
+            SizedBox(
+              height: 30,
             ),
           ],
         ),

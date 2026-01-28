@@ -1,5 +1,5 @@
 import 'package:assets/models/asset_object.dart';
-import 'package:assets/widgets/upload_data.dart';
+import 'package:assets/tools/upload_data.dart';
 import 'package:flutter/material.dart';
 
 class EditAsset extends StatefulWidget {
@@ -26,6 +26,18 @@ class _EditAssetState extends State<EditAsset> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                widget.asset.assetId.image,
+                fit: BoxFit.fitWidth,
+                height: 300,
+                width: double.infinity,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
@@ -63,6 +75,9 @@ class _EditAssetState extends State<EditAsset> {
                       uploadAsset(widget.asset);
                     },
               child: sent ? Icon(Icons.done) : Icon(Icons.upload),
+            ),
+            SizedBox(
+              height: 20,
             ),
           ],
         ),

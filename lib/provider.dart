@@ -14,7 +14,7 @@ Future<Database> _getDatabase() async {
     path.join(dbPath, 'asset_data.db'),
     onCreate: (db, version) {
       return db.execute(
-        'CREATE TABLE asset_images(id TEXT PRIMARY KEY,tracker_image TEXT,sim_image TEXT,sim_alt TEXT)',
+        'CREATE TABLE asset_images(id TEXT PRIMARY KEY,tracker_image TEXT,assetId TEXT,sim_image TEXT,sim_alt TEXT)',
       );
     },
     version: 1,
@@ -67,6 +67,10 @@ class AssetNotifier extends Notifier<List<AssetObject>> {
                   description: 'image of sim',
                 ),
             ],
+            assetId: AssetDataObject(
+              description: 'image of asset Id',
+              image: File(item['assetId'] as String),
+            ),
           ),
         )
         .toList();
@@ -101,6 +105,7 @@ class AssetNotifier extends Notifier<List<AssetObject>> {
 
     final trackerPath = await _returnPath(newAsset.Tracker.image, appDir);
     final simPath = await _returnPath(newAsset.Sim[0].image, appDir);
+    final assetIdPath = await _returnPath(newAsset.assetId.image, appDir);
     final simAltPath = newAsset.Sim.length > 1
         ? await _returnPath(newAsset.Sim[1].image, appDir)
         : null;
@@ -108,6 +113,7 @@ class AssetNotifier extends Notifier<List<AssetObject>> {
     await db.insert('asset_images', {
       'id': newAsset.id, // see next issue
       'tracker_image': trackerPath,
+      'assetId': assetIdPath,
       'sim_image': simPath,
       'sim_alt': simAltPath,
     });

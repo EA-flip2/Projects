@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:assets/pages/create_asset.dart';
+import 'package:assets/tools/xcel_tools.dart';
 import 'package:assets/widgets/assets_list.dart';
-import 'package:assets/widgets/upload_data.dart';
+import 'package:assets/tools/upload_data.dart';
 import 'package:flutter/material.dart';
 import 'package:assets/provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
+
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +21,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late Future<void> _assetLoad;
   bool _isUploading = false;
+  List<Map<String, String>> processed_data = [];
 
   @override
   void initState() {
@@ -69,9 +76,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               });
 
               final uploadAssets = ref.read(assetRecordsProvider);
+              processed_data = [];
 
               for (final asset in uploadAssets) {
-                await uploadAsset(asset);
+                final response = await uploadAsset(asset);
+                print(response.body);
+
+                if (response.statusCode != 200) continue;
+
+                final decoded =
+                    jsonDecode(response.body) as Map<String, dynamic>;
+
+                processed_data.add({
+                  'tracker_imei': decoded['tracker_imei']?.toString() ?? '',
+                  'asset_id': decoded['asset_id']?.toString() ?? '',
+                  'sim_imei': decoded['sim_imei']?.toString() ?? '',
+                  'phone': decoded['phone']?.toString() ?? '',
+                });
               }
 
               setState(() {
@@ -82,10 +103,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
 
           IconButton(
-            onPressed: () {
-              // ref.read(assetRecordsProvider.notifier).clearDatabase();
-            },
             icon: Icon(Icons.download),
+            onPressed: () async {
+              // 1️⃣ Create workbook
+              final Workbook workbook = createWorkbookWithHeaders();
+              final Worksheet sheet = workbook.worksheets[0];
+
+              // 2️⃣ Append rows
+              for (final data in processed_data) {
+                appendRow(
+                  sheet: sheet,
+                  trackerImei: data['tracker_imei'] ?? '',
+                  assetId: data['asset_id'] ?? '',
+                  simImei: data['sim_imei'] ?? '',
+                  simNumber: data['phone'] ?? '',
+                );
+              }
+
+              //  Save workbook
+              final File file = await saveWorkbook(workbook, 'assets.xlsx');
+
+              //  Move to Downloads (optional)
+              await moveFileToDownloads(file);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Excel exported to Downloads')),
+              );
+            },
           ),
         ],
       ),
